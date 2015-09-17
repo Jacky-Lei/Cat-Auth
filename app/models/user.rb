@@ -12,8 +12,8 @@
 require 'bcrypt'
 
 class User < ActiveRecord::Base
-  validates :password, length: { minimum: 6 }
-  after_initialize :reset_session_token
+  validates :password, length: { minimum: 6, allow_nil: true }
+  after_initialize :ensure_session_token
 
   attr_reader :password
 
@@ -22,8 +22,18 @@ class User < ActiveRecord::Base
     return user if user && user.is_password?(password)
   end
 
-  def reset_session_token
-    self.session_token ||= SecureRandom.hex(5)
+  def ensure_session_token
+    self.session_token ||= SecureRandom.urlsafe_base64
+  end
+
+  def reset_session_token!
+    # give this user a completely new session token,
+    # even if they already have one
+    # and SAVE
+
+    self.session_token = SecureRandom.urlsafe_base64
+    self.save!
+    self.session_token
   end
 
   def password=(password)

@@ -6,6 +6,12 @@
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
 </head>
+<% unless current_user.nil? %>
+<%= "#{current_user.user_name} logged in" %>
+<%= button_to "Logout", session_url, method: :delete %>
+<% else %>
+<%= button_to "Login", new_session_url, method: :GET %>
+<% end %>
 <body>
 
 <%= yield %>
